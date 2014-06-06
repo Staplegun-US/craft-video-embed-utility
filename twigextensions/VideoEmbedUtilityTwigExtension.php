@@ -63,7 +63,7 @@
 				break;
 				
 				case YOUTUBE:
-					return "http://www.youtube.com/embed/$vid&controls=2";
+					return "http://www.youtube.com/embed/$vid?controls=2";
 				break;
 				
 				default:
