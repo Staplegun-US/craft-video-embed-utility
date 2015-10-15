@@ -48,11 +48,9 @@
 				case YOUTUBE:
 					if(preg_match('/[&,v]=([^&]+)/',$videoUrl,$matches) !== false)
 						return $matches[1];
-					break;
-					
-				default:
-					throw new UnknownVideoHostException($videoUrl);				
+				break;			
 			}
+			return "";
 		}
 		
 		public function videoPlayerUrl($input) {
@@ -64,13 +62,9 @@
 				
 				case YOUTUBE:
 					return "//www.youtube.com/embed/$vid?controls=2";
-				break;
-				
-				default:
-				break;
-				
+				break;				
 			}
-			return "$vid - videoPlayerUrl-$input";
+			return "";
 		}
 		
 		/**
@@ -84,25 +78,21 @@
 		}
 		
 		public function videoEmbed($input) {
-			$originalPath = craft()->path->getTemplatesPath();
-			$myPath = craft()->path->getPluginsPath() . 'videoembedutility/templates/';
-			craft()->path->setTemplatesPath($myPath);
-			$markup = craft()->templates->render('_vimeoEmbed.html', array(
-				'player_url' => $this->videoPlayerUrl($input)
-			));
-			craft()->path->setTemplatesPath($originalPath);
-			return TemplateHelper::getRaw($markup);
+		    $url = $this->videoPlayerUrl($input);
+		    if(!empty($url)) {
+    			$originalPath = craft()->path->getTemplatesPath();
+    			$myPath = craft()->path->getPluginsPath() . 'videoembedutility/templates/';
+    			craft()->path->setTemplatesPath($myPath);
+    			$markup = craft()->templates->render('_vimeoEmbed.html', array(
+    				'player_url' => $url
+    			));
+    			craft()->path->setTemplatesPath($originalPath);
+    			return TemplateHelper::getRaw($markup);
+    		}
 		}
 		
 		public function getName() {
 			return 'Video Embed Utility Twig Extension';
-		}
-	}
-	
-	class UnknownVideoHostException extends Exception {
-		public function __construct($url) {
-			$this->url = $url;
-			parent::__construct('Unrecognized video host. Unable to extract id from url:' . $url);
 		}
 	}
 	
