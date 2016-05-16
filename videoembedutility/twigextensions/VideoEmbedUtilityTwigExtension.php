@@ -40,7 +40,7 @@
 			$host = $this->videoHost($videoUrl);
 			switch($host) {
 				case VIMEO:
-					if(preg_match('/\/([0-9]+)\/*$/',$videoUrl,$matches) !== false) {
+					if(preg_match('/\/([0-9]+)\/*(\?.*)?$/',$videoUrl,$matches) !== false) {
 						return $matches[1];
 					}
 				break;
@@ -48,7 +48,7 @@
 				case YOUTUBE:
 					if(preg_match('/[&,v]=([^&]+)/',$videoUrl,$matches) !== false)
 						return $matches[1];
-				break;			
+				break;
 			}
 			return "";
 		}
@@ -62,7 +62,7 @@
 				
 				case YOUTUBE:
 					return "//www.youtube.com/embed/$vid?controls=2";
-				break;				
+				break;
 			}
 			return "";
 		}
@@ -77,18 +77,22 @@
 			return $needle === "" || substr($haystack, -strlen($needle)) === $needle;
 		}
 		
-		public function videoEmbed($input) {
-		    $url = $this->videoPlayerUrl($input);
-		    if(!empty($url)) {
-    			$originalPath = craft()->path->getTemplatesPath();
-    			$myPath = craft()->path->getPluginsPath() . 'videoembedutility/templates/';
-    			craft()->path->setTemplatesPath($myPath);
-    			$markup = craft()->templates->render('_vimeoEmbed.html', array(
-    				'player_url' => $url
-    			));
-    			craft()->path->setTemplatesPath($originalPath);
-    			return TemplateHelper::getRaw($markup);
-    		}
+		public function videoEmbed($input, $options = array()) {
+			$url = $this->videoPlayerUrl($input);
+			if(!empty($url)) {
+				if(!empty($options)) {
+					$url .= '?' . http_build_query($options);
+				}
+				
+				$originalPath = craft()->path->getTemplatesPath();
+				$myPath = craft()->path->getPluginsPath() . 'videoembedutility/templates/';
+				craft()->path->setTemplatesPath($myPath);
+				$markup = craft()->templates->render('_vimeoEmbed.html', array(
+					'player_url' => $url
+				));
+				craft()->path->setTemplatesPath($originalPath);
+				return TemplateHelper::getRaw($markup);
+			}
 		}
 		
 		public function getName() {
