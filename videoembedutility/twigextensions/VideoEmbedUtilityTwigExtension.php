@@ -79,7 +79,7 @@
 		
 		public function videoEmbed($input, $options = array()) {
 			$width = '100%';
-			$height = '168';
+			$height = '148';
 			$url = $this->videoPlayerUrl($input);
 			
 			if(!empty($url)) {
