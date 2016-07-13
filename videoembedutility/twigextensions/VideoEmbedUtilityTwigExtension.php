@@ -7,10 +7,11 @@
 	
 	define("VIMEO",'vimeo.com');
 	define("YOUTUBE",'youtube.com');
+	define("YOUTUBE_SHORT",'youtu.be');
 	
 	class VideoEmbedUtilityTwigExtension extends Twig_Extension {
 		
-		private static $KNOWN_HOSTS = array(VIMEO,YOUTUBE);
+		private static $KNOWN_HOSTS = array(VIMEO,YOUTUBE,YOUTUBE_SHORT);
 		
 		public function getFilters() {
 			return array(
@@ -46,7 +47,8 @@
 				break;
 				
 				case YOUTUBE:
-					if(preg_match('/[&,v]=([^&]+)/',$videoUrl,$matches) !== false)
+				case YOUTUBE_SHORT:
+					if(preg_match('%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/)([^"&?/ ]{11})%i',$videoUrl,$matches) !== false)
 						return $matches[1];
 				break;
 			}
@@ -61,6 +63,7 @@
 				break;
 				
 				case YOUTUBE:
+				case YOUTUBE_SHORT:
 					return "//www.youtube.com/embed/$vid?controls=2";
 				break;
 			}
