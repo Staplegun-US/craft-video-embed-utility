@@ -59,7 +59,7 @@
 			$vid = $this->videoId($input);
 			switch($this->videoHost($input)) {
 				case VIMEO:
-					return "//player.vimeo.com/video/$vid";
+					return "//player.vimeo.com/video/$vid?";
 				break;
 				
 				case YOUTUBE:
@@ -97,7 +97,7 @@
 						unset($options['height']);
 					}
 					
-					$url .= '?' . http_build_query($options);
+					$url .= '&' . http_build_query($options);
 				}
 				
 				$originalPath = craft()->path->getTemplatesPath();
