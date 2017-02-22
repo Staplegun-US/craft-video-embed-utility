@@ -8,10 +8,11 @@
 	define("VIMEO",'vimeo.com');
 	define("YOUTUBE",'youtube.com');
 	define("YOUTUBE_SHORT",'youtu.be');
+	define("FACEBOOK",'facebook.com');
 	
 	class VideoEmbedUtilityTwigExtension extends Twig_Extension {
 		
-		private static $KNOWN_HOSTS = array(VIMEO,YOUTUBE,YOUTUBE_SHORT);
+		private static $KNOWN_HOSTS = array(VIMEO,YOUTUBE,YOUTUBE_SHORT,FACEBOOK);
 		
 		public function getFilters() {
 			return array(
@@ -56,15 +57,19 @@
 		}
 		
 		public function videoPlayerUrl($input) {
-			$vid = $this->videoId($input);
+			$videoId = $this->videoId($input);
 			switch($this->videoHost($input)) {
 				case VIMEO:
-					return "//player.vimeo.com/video/$vid";
+					return "//player.vimeo.com/video/$videoId?";
 				break;
 				
 				case YOUTUBE:
 				case YOUTUBE_SHORT:
-					return "//www.youtube.com/embed/$vid?controls=2";
+					return "//www.youtube.com/embed/$videoId?controls=2";
+				break;
+
+				case FACEBOOK:
+					return '//www.facebook.com/plugins/video.php?href=' . urlencode($input) . '&show_text=0';
 				break;
 			}
 			return "";
@@ -97,7 +102,7 @@
 						unset($options['height']);
 					}
 					
-					$url .= '?' . http_build_query($options);
+					$url .= '&' . http_build_query($options);
 				}
 				
 				$originalPath = craft()->path->getTemplatesPath();
