@@ -18,7 +18,9 @@
 			return array(
 				'videoPlayerUrl' => new Twig_Filter_Method($this,'videoPlayerUrl'),
 				'videoEmbed' => new Twig_Filter_Method($this,'videoEmbed'),
-				'videoHost' => new Twig_Filter_Method($this,'videoHost')
+				'videoHost' => new Twig_Filter_Method($this,'videoHost'),
+				'videoType' => new Twig_Filter_Method($this,'videoType'),
+				'videoId' => new Twig_Filter_Method($this,'videoId')
 			);
 		}
 		/**
@@ -37,7 +39,32 @@
 			}
 			return $host;
 		}
-				
+		/**
+		 * Returns a string indicating where this video is hosted (youtube, vimeo, etc.)
+		 *
+		 * @param string $videoUrl
+		 * @return string
+		 */
+		public function videoType($videoUrl) {
+			$host = parse_url($videoUrl, PHP_URL_HOST);
+			// return a sanitized value (no leading www, etc) if it's one we know.
+			foreach($this::$KNOWN_HOSTS as $known) {
+				if( strpos($videoUrl,$known) !== FALSE ) {
+					if ( $known === YOUTUBE_SHORT ) {
+						$known = YOUTUBE;
+					}
+					$known = explode( '.', $known );
+					return $known[0];
+				}
+			}
+			return $host;
+		}
+		/**
+		 * Returns a string indicating the ID of this video
+		 *
+		 * @param string $videoId
+		 * @return string
+		 */	
 		public function videoId($videoUrl) {
 			$host = $this->videoHost($videoUrl);
 			switch($host) {
