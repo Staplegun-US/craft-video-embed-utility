@@ -88,6 +88,7 @@
 		public function videoEmbed($input, $options = array()) {
 			$width = '100%';
 			$height = '148';
+			$class = '';
 			$url = $this->videoPlayerUrl($input);
 
 			if(!empty($url)) {
@@ -102,6 +103,11 @@
 						unset($options['height']);
 					}
 
+					if(isset($options['class'])) {
+						$class = $options['class'];
+						unset($options['class']);
+					}
+
 					$url .= '&' . http_build_query($options);
 				}
 
@@ -111,7 +117,8 @@
 				$markup = craft()->templates->render('_vimeoEmbed.html', array(
 					'player_url' => $url,
 					'width' => $width,
-					'height' => $height
+					'height' => $height,
+					'class' => $class
 				));
 				craft()->path->setTemplatesPath($originalPath);
 				return TemplateHelper::getRaw($markup);
