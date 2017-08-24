@@ -65,7 +65,7 @@
 
 				case YOUTUBE:
 				case YOUTUBE_SHORT:
-					return "//www.youtube.com/embed/$videoId?controls=2";
+					return "//www.youtube.com/embed/$videoId?";
 				break;
 
 				case FACEBOOK:
