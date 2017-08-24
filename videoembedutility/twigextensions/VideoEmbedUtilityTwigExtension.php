@@ -1,19 +1,19 @@
 <?php
-	
+
 	namespace Craft;
-	
+
 	use Twig_Extension;
 	use Twig_Filter_Method;
-	
+
 	define("VIMEO",'vimeo.com');
 	define("YOUTUBE",'youtube.com');
 	define("YOUTUBE_SHORT",'youtu.be');
 	define("FACEBOOK",'facebook.com');
-	
+
 	class VideoEmbedUtilityTwigExtension extends Twig_Extension {
-		
+
 		private static $KNOWN_HOSTS = array(VIMEO,YOUTUBE,YOUTUBE_SHORT,FACEBOOK);
-		
+
 		public function getFilters() {
 			return array(
 				'videoPlayerUrl' => new Twig_Filter_Method($this,'videoPlayerUrl'),
@@ -37,7 +37,7 @@
 			}
 			return $host;
 		}
-				
+
 		public function videoId($videoUrl) {
 			$host = $this->videoHost($videoUrl);
 			switch($host) {
@@ -46,7 +46,7 @@
 						return $matches[1];
 					}
 				break;
-				
+
 				case YOUTUBE:
 				case YOUTUBE_SHORT:
 					if(preg_match('%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/)([^"&?/ ]{11})%i',$videoUrl,$matches) !== false)
@@ -55,14 +55,14 @@
 			}
 			return "";
 		}
-		
+
 		public function videoPlayerUrl($input) {
 			$videoId = $this->videoId($input);
 			switch($this->videoHost($input)) {
 				case VIMEO:
 					return "//player.vimeo.com/video/$videoId?";
 				break;
-				
+
 				case YOUTUBE:
 				case YOUTUBE_SHORT:
 					return "//www.youtube.com/embed/$videoId?controls=2";
@@ -74,7 +74,7 @@
 			}
 			return "";
 		}
-		
+
 		/**
 		* Returns a boolean indicating whether the string $haystack ends with the string $needle.
 		* @param string $haystack the string to be searched
@@ -84,43 +84,48 @@
 		private function endsWith($haystack, $needle) {
 			return $needle === "" || substr($haystack, -strlen($needle)) === $needle;
 		}
-		
+
 		public function videoEmbed($input, $options = array()) {
 			$width = '100%';
 			$height = '148';
+			$class = '';
 			$url = $this->videoPlayerUrl($input);
-			
+
 			if(!empty($url)) {
 				if(!empty($options)) {
 					if(isset($options['width'])) {
 						$width = $options['width'];
 						unset($options['width']);
 					}
-					
+
 					if(isset($options['height'])) {
 						$height = $options['height'];
 						unset($options['height']);
 					}
-					
+
+					if(isset($options['class'])) {
+						$class = $options['class'];
+						unset($options['class']);
+					}
+
 					$url .= '&' . http_build_query($options);
 				}
-				
+
 				$originalPath = craft()->path->getTemplatesPath();
 				$myPath = craft()->path->getPluginsPath() . 'videoembedutility/templates/';
 				craft()->path->setTemplatesPath($myPath);
 				$markup = craft()->templates->render('_vimeoEmbed.html', array(
 					'player_url' => $url,
 					'width' => $width,
-					'height' => $height
+					'height' => $height,
+					'class' => $class
 				));
 				craft()->path->setTemplatesPath($originalPath);
 				return TemplateHelper::getRaw($markup);
 			}
 		}
-		
+
 		public function getName() {
 			return 'Video Embed Utility Twig Extension';
 		}
 	}
-	
-?>
