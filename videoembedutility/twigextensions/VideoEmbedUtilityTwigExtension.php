@@ -55,7 +55,7 @@
 				break;
 
                                 case WISTIA:
-                                        if(preg_match('/https?:\/\/.+?(wistia\.com|wi\.st)\/(medias|embed)\/([^&]+)/',$videoUrl,$matches) !== false)
+                                        if(preg_match('/https?:\/\/.+?(wistia\.com|wi\.st)\/(medias|embed)\/([^?]+)/',$videoUrl,$matches) !== false)
                                                 return $matches[3];
                                 break;
 			}
