@@ -7,11 +7,13 @@
 
 	define("VIMEO",'vimeo.com');
 	define("YOUTUBE",'youtube.com');
+	define("YOUTUBE_SHORT",'youtu.be');
+	define("FACEBOOK",'facebook.com');
 	define("WISTIA",'wistia.com');
 
 	class VideoEmbedUtilityTwigExtension extends Twig_Extension {
 
-		private static $KNOWN_HOSTS = array(VIMEO,YOUTUBE,WISTIA);
+		private static $KNOWN_HOSTS = array(VIMEO,YOUTUBE,YOUTUBE_SHORT,FACEBOOK,WISTIA);
 
 		public function getFilters() {
 			return array(
