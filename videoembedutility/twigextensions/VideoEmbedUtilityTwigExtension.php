@@ -9,6 +9,7 @@
 	define("YOUTUBE",'youtube.com');
 	define("YOUTUBE_SHORT",'youtu.be');
 	define("FACEBOOK",'facebook.com');
+	define("WISTIA",'wistia.com');
 
 	class VideoEmbedUtilityTwigExtension extends Twig_Extension {
 
@@ -52,6 +53,11 @@
 					if(preg_match('%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/)([^"&?/ ]{11})%i',$videoUrl,$matches) !== false)
 						return $matches[1];
 				break;
+
+                                case WISTIA:
+                                        if(preg_match('/https?:\/\/.+?(wistia\.com|wi\.st)\/(medias|embed)\/([^&]+)/',$videoUrl,$matches) !== false)
+                                                return $matches[3];
+                                break;
 			}
 			return "";
 		}
@@ -70,6 +76,10 @@
 
 				case FACEBOOK:
 					return '//www.facebook.com/plugins/video.php?href=' . urlencode($input) . '&show_text=0';
+				break;
+
+				case WISTIA:
+					return "wistia_async_$videoId";
 				break;
 			}
 			return "";
@@ -108,13 +118,20 @@
 						unset($options['class']);
 					}
 
-					$url .= '&' . http_build_query($options);
+                                        if(!empty($options)) {
+                                                $url .= '?' . http_build_query($options);
+                                        }
 				}
 
 				$originalPath = craft()->path->getTemplatesPath();
 				$myPath = craft()->path->getPluginsPath() . 'videoembedutility/templates/';
 				craft()->path->setTemplatesPath($myPath);
-				$markup = craft()->templates->render('_vimeoEmbed.html', array(
+                                if($this->videoHost($input) === WISTIA) {
+                                        $templateHtml = '_wistiaEmbed.html';
+                                } else {
+                                        $templateHtml = '_vimeoEmbed.html';
+                                }
+				$markup = craft()->templates->render($templateHtml, array(
 					'player_url' => $url,
 					'width' => $width,
 					'height' => $height,
