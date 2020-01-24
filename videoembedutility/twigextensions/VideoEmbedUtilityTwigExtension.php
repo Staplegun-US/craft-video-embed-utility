@@ -1,18 +1,18 @@
 <?php
-	
+
 	namespace Craft;
-	
+
 	use Twig_Extension;
 	use Twig_Filter_Method;
-	
+
 	define("VIMEO",'vimeo.com');
 	define("YOUTUBE",'youtube.com');
 	define("WISTIA",'wistia.com');
-	
+
 	class VideoEmbedUtilityTwigExtension extends Twig_Extension {
-		
+
 		private static $KNOWN_HOSTS = array(VIMEO,YOUTUBE,WISTIA);
-		
+
 		public function getFilters() {
 			return array(
 				'videoPlayerUrl' => new Twig_Filter_Method($this,'videoPlayerUrl'),
@@ -36,7 +36,7 @@
 			}
 			return $host;
 		}
-				
+
 		public function videoId($videoUrl) {
 			$host = $this->videoHost($videoUrl);
 			switch($host) {
@@ -45,7 +45,7 @@
 						return $matches[1];
 					}
 				break;
-				
+
 				case YOUTUBE:
 					if(preg_match('/[&,v]=([^&]+)/',$videoUrl,$matches) !== false)
 						return $matches[1];
@@ -58,7 +58,7 @@
                         }
 			return "";
 		}
-		
+
 		public function videoPlayerUrl($input) {
 			$vid = $this->videoId($input);
 			switch($this->videoHost($input)) {
@@ -76,7 +76,7 @@
 			}
 			return "";
 		}
-		
+
 		/**
 		* Returns a boolean indicating whether the string $haystack ends with the string $needle.
 		* @param string $haystack the string to be searched
@@ -86,29 +86,29 @@
 		private function endsWith($haystack, $needle) {
 			return $needle === "" || substr($haystack, -strlen($needle)) === $needle;
 		}
-		
+
 		public function videoEmbed($input, $options = array()) {
 			$width = '100%';
 			$height = '148';
 			$url = $this->videoPlayerUrl($input);
-			
+
 			if(!empty($url)) {
 				if(!empty($options)) {
 					if(isset($options['width'])) {
 						$width = $options['width'];
 						unset($options['width']);
 					}
-					
+
 					if(isset($options['height'])) {
 						$height = $options['height'];
 						unset($options['height']);
 					}
-          
+
                                         if(!empty($options)) {
                                                 $url .= '?' . http_build_query($options);
                                         }
 				}
-				
+
 				$originalPath = craft()->path->getTemplatesPath();
 				$myPath = craft()->path->getPluginsPath() . 'videoembedutility/templates/';
                                 craft()->path->setTemplatesPath($myPath);
@@ -128,10 +128,10 @@
 				return TemplateHelper::getRaw($markup);
 			}
 		}
-		
+
 		public function getName() {
 			return 'Video Embed Utility Twig Extension';
 		}
 	}
-	
+
 ?>
