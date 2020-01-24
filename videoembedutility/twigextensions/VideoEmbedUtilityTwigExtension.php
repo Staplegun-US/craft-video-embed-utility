@@ -9,11 +9,10 @@
 	define("YOUTUBE",'youtube.com');
 	define("YOUTUBE_SHORT",'youtu.be');
 	define("FACEBOOK",'facebook.com');
-	define("WISTIA",'wistia.com');
 
 	class VideoEmbedUtilityTwigExtension extends Twig_Extension {
 
-		private static $KNOWN_HOSTS = array(VIMEO,YOUTUBE,YOUTUBE_SHORT,FACEBOOK,WISTIA);
+		private static $KNOWN_HOSTS = array(VIMEO,YOUTUBE,YOUTUBE_SHORT,FACEBOOK);
 
 		public function getFilters() {
 			return array(
@@ -49,31 +48,28 @@
 				break;
 
 				case YOUTUBE:
-					if(preg_match('/[&,v]=([^&]+)/',$videoUrl,$matches) !== false)
+				case YOUTUBE_SHORT:
+					if(preg_match('%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/)([^"&?/ ]{11})%i',$videoUrl,$matches) !== false)
 						return $matches[1];
-                                break;
-
-                                case WISTIA:
-                                        if(preg_match('/https?:\/\/.+?(wistia\.com|wi\.st)\/(medias|embed)\/([^&]+)/',$videoUrl,$matches) !== false)
-                                                return $matches[3];
-                                break;
-                        }
+				break;
+			}
 			return "";
 		}
 
 		public function videoPlayerUrl($input) {
-			$vid = $this->videoId($input);
+			$videoId = $this->videoId($input);
 			switch($this->videoHost($input)) {
 				case VIMEO:
-					return "//player.vimeo.com/video/$vid";
+					return "//player.vimeo.com/video/$videoId?";
 				break;
-				
-				case YOUTUBE:
-					return "//www.youtube.com/embed/$vid?controls=2";
-                                break;
 
-				case WISTIA:
-					return "wistia_async_$vid";
+				case YOUTUBE:
+				case YOUTUBE_SHORT:
+					return "//www.youtube.com/embed/$videoId?";
+				break;
+
+				case FACEBOOK:
+					return '//www.facebook.com/plugins/video.php?href=' . urlencode($input) . '&show_text=0';
 				break;
 			}
 			return "";
@@ -92,6 +88,7 @@
 		public function videoEmbed($input, $options = array()) {
 			$width = '100%';
 			$height = '148';
+			$class = '';
 			$url = $this->videoPlayerUrl($input);
 
 			if(!empty($url)) {
@@ -106,25 +103,22 @@
 						unset($options['height']);
 					}
 
-                                        if(!empty($options)) {
-                                                $url .= '?' . http_build_query($options);
-                                        }
+					if(isset($options['class'])) {
+						$class = $options['class'];
+						unset($options['class']);
+					}
+
+					$url .= '&' . http_build_query($options);
 				}
 
 				$originalPath = craft()->path->getTemplatesPath();
 				$myPath = craft()->path->getPluginsPath() . 'videoembedutility/templates/';
-                                craft()->path->setTemplatesPath($myPath);
-
-                                if($this->videoHost($input) === WISTIA) {
-                                        $templateHtml = '_wistiaEmbed.html';
-                                } else {
-                                        $templateHtml = '_vimeoEmbed.html';
-                                }
-
-				$markup = craft()->templates->render($templateHtml, array(
+				craft()->path->setTemplatesPath($myPath);
+				$markup = craft()->templates->render('_vimeoEmbed.html', array(
 					'player_url' => $url,
 					'width' => $width,
-					'height' => $height
+					'height' => $height,
+					'class' => $class
 				));
 				craft()->path->setTemplatesPath($originalPath);
 				return TemplateHelper::getRaw($markup);
@@ -135,5 +129,3 @@
 			return 'Video Embed Utility Twig Extension';
 		}
 	}
-
-?>
